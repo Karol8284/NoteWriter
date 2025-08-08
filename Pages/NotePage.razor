@@ -1,0 +1,219 @@
+﻿@page "/note-editor/{pathToNote}"
+@using Logic
+
+
+<h3>NotePage</h3>
+<style>
+
+    body{
+        background: rgba(42,23,135,100);
+        /* #2A1787 */
+    }
+    .note-body {
+        width: 100vw; /* pełna szerokość okna */
+        height: 80vh; /* 80% wysokości okna */
+        resize: none; /* opcjonalnie: blokuj ręczne skalowanie */
+        padding: 1rem;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .note-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 1rem;
+    }
+
+    .note-body {
+        flex-grow: 1;
+        width: 100%;
+        resize: none;
+        font-size: 1rem;
+    }
+    /* Motyw 1 – Jasny */
+    .theme-light .note-container {
+        background-color: #fdfdfd;
+        color: #000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .theme-light .note-title,
+    .theme-light .note-body {
+        border-color: #ccc;
+    }
+
+        .theme-light .note-title:focus,
+        .theme-light .note-body:focus {
+            border-color: #0078D7;
+        }
+
+    .theme-light .save-button {
+        background-color: #0078D7;
+    }
+
+        .theme-light .save-button:hover {
+            background-color: #005fa3;
+        }
+
+    /* Motyw 2 – Ciemny */
+    .theme-dark .note-container {
+        background-color: #0d0d0d;
+        color: #fff;
+        box-shadow: 0 0 20px rgba(128, 0, 128, 0.3);
+    }
+
+    .theme-dark .note-title,
+    .theme-dark .note-body {
+        border-color: #800080;
+    }
+
+        .theme-dark .note-title:focus,
+        .theme-dark .note-body:focus {
+            border-color: #c71585;
+        }
+
+    .theme-dark .save-button {
+        background-color: #800080;
+    }
+
+        .theme-dark .save-button:hover {
+            background-color: #c71585;
+        }
+
+    /* Motyw 3 – Zielony */
+    .theme-green .note-container {
+        background-color: #e6ffe6;
+        color: #003300;
+        box-shadow: 0 0 20px rgba(0, 128, 0, 0.3);
+    }
+
+    .theme-green .note-title,
+    .theme-green .note-body {
+        border-color: #66cc66;
+    }
+
+        .theme-green .note-title:focus,
+        .theme-green .note-body:focus {
+            border-color: #339933;
+        }
+
+    .theme-green .save-button {
+        background-color: #339933;
+    }
+
+        .theme-green .save-button:hover {
+            background-color: #267326;
+        }
+
+    .note-title {
+        padding: 0.5rem;
+        font-size: 1.2rem;
+        border: 1px solid transparent;
+        margin-bottom: 1rem;
+    }
+
+    .save-button {
+        padding: 0.5rem 1rem;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        border-radius: 4px;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(errorString))
+{
+    <h3>ERROR: @errorString</h3>
+}
+
+
+
+
+<div class="@GetThemeClass() note-container">
+    <input type="text" class="note-title" placeholder="Tytuł notatki" @bind="note.title" />
+    <br />
+    <textarea class="note-body" placeholder="Treść notatki..." @bind="note.text"></textarea>
+
+    <div class="note-footer">
+        <input type="text" placeholder="Path to save" @bind="pathToSave" />
+        <button class="save-button" @onclick="SaveNote">💾 Zapisz</button>
+    </div>
+</div>
+<div class="theme-selector">
+    <button @onclick="() => ChangeTheme(1)">🌞 Jasny</button>
+    <button @onclick="() => ChangeTheme(2)">🌙 Ciemny</button>
+    <button @onclick="() => ChangeTheme(3)">🌿 Zielony</button>
+</div>
+
+@code {
+    [Parameter]
+    public string pathToNote { get; set; }
+
+    private string pathToSave { get; set; }
+    // private string NoteTitle { get; set; } = string.Empty;
+    // private string NoteContent { get; set; } = string.Empty;
+    private int Motyw { get; set; } = 2;
+
+    public NoteObject note = new();
+    private NoteLogic noteLogic = new();
+    private string errorString = string.Empty;
+
+    private string GetThemeClass()
+    {
+        return Motyw switch
+        {
+            1 => "theme-light",
+            2 => "theme-dark",
+            3 => "theme-green",
+            _ => "theme-light"
+        };
+    }
+    private void ChangeTheme(int theme)
+    {
+        Motyw = theme;
+        StateHasChanged(); // wymusza odświeżenie widoku
+    }
+    private void Open(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+
+        }
+        else
+        {
+            try
+            {
+                this.note = noteLogic.GetNote(pathToNote);
+
+            }
+            catch (Exception ex)
+            {
+                errorString = ex + "";
+            }
+        }
+    }
+
+    private void SaveNote()
+    {
+        // Logika zapisywania notatki
+        Console.WriteLine($"Zapisano notatkę: {note.title}");
+        Console.WriteLine($"Treść: {note.text}");
+        if (string.IsNullOrEmpty(pathToSave))
+        {
+            errorString = "PAth to save note is null or empty!!!";
+        }
+        else
+        {
+            NoteLogic.SaveNote(note, note.path);
+        }
+    }
+    private void Close()
+    {
+        // Logika zapisywania notatki
+        Console.WriteLine($"Zapisano notatkę: {note.title}");
+        Console.WriteLine($"Treść: {note.text}");
+    }
+
+}
