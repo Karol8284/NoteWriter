@@ -1,7 +1,21 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<li class="nav-item">
+    <a class="nav-link text-dark" asp-page="/note">O nas</a>
+</li>
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialization logic can go here
+
+        Navigation.NavigateTo("note", true);
+
+    }
+}

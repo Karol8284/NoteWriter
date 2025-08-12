@@ -1,0 +1,66 @@
+﻿@using NoteWriter.Logic
+@using Logic
+@using System.Text.Json
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@page "/local-storage"
+
+<h3>LocalStoragePage</h3>
+
+@if(allNotes != null )
+{
+    <div class="note-container">
+        <h4>Wszystkie notatki</h4>
+        @if (allNotes.Count > 0)
+        {
+            <ul>
+                @foreach (var note in allNotes)
+                {
+                    <li>@note.title - @note.text</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Brak notatek w lokalnej pamięci.</p>
+        }
+    </div>
+}
+else
+{
+    <p><em>Ładowanie notatek...</em></p>
+    
+}
+
+@code {
+    private IEnumerable<string> allKeys;
+    private List<NoteObject> allNotes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllNotes();
+    }
+
+    private async Task LoadAllNotes()
+    {
+        allKeys = await localStorage.KeysAsync();
+        allNotes.Clear();
+
+        foreach (var key in allKeys)
+        {
+            try
+            {
+                var json = await localStorage.GetItemAsync<string>(key);
+                var note = JsonSerializer.Deserialize<NoteObject>(json);
+                if (note != null)
+                {
+                    allNotes.Add(note);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd przy odczycie klucza {key}: {ex.Message}");
+            }
+        }
+    }
+}

@@ -9,11 +9,13 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace NoteWriter.Logic
 {
     public class NoteObject
     {
+        [Key]
         public string path { get; set; } = "";
         public string title { get; set; } = "";
         public string text { get; set; } = "";
