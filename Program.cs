@@ -40,12 +40,10 @@ builder.Services.AddIndexedDB(dbStore =>
         PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
         Indexes = new List<IndexSpec>
         {
-            new IndexSpec { Name = "path", Unique=true},
+            //new IndexSpec { Name = "path", Unique=true},
             new IndexSpec { Name = "title", Unique=false},
             new IndexSpec { Name = "text", Unique=false},
             new IndexSpec { Name = "size", Unique=false},
-            new IndexSpec { Name = "created", Unique=false},
-            new IndexSpec { Name = "modified", Unique=false},
         }
 
     });

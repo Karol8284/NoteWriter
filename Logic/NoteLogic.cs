@@ -19,7 +19,7 @@ namespace NoteWriter.Logic
                 note = new NoteObject();
                 note.title = setTitle;
                 note.text = setText;
-                note.created = DateTime.Now;
+                //note.created = DateTime.Now;
                 //note.extension = setExtension;
                 return this;
 

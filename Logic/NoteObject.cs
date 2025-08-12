@@ -16,12 +16,13 @@ namespace NoteWriter.Logic
     public class NoteObject
     {
         [Key]
+        public long id { get; set; } 
         public string path { get; set; } = "";
         public string title { get; set; } = "";
         public string text { get; set; } = "";
         public long size { get; set; } = -1;
-        public DateTime created { get; set; }
-        public DateTime modified { get; set; }
+        //public DateTime created { get; set; }
+        //public DateTime modified { get; set; }
         public NoteObject() { }
         public NoteObject(string path, string title, string text, long size, DateTime created, DateTime modified)
         {
@@ -29,8 +30,8 @@ namespace NoteWriter.Logic
             this.title = title;
             this.text = text;
             this.size = size;
-            this.created = created;
-            this.modified = modified;
+            //this.created = created;
+            //this.modified = modified;
         }
         public void JsonToNote(string json)
         {
@@ -43,8 +44,8 @@ namespace NoteWriter.Logic
                     text = noteData.text;
                     path = noteData.path;
                     size = noteData.size;
-                    created = noteData.created;
-                    modified = noteData.modified;
+                    //created = noteData.created;
+                    //modified = noteData.modified;
                 }
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@
 @inject IndexedDBManager DB
 
 <style>
+    /* Podstawowe motywy */
     .theme-light {
         background-color: #ffffff;
         color: #000000;
@@ -23,42 +24,67 @@
         color: #14532d;
     }
 
-    /* Żeby wszystkie sekcje były czytelne */
+    /* Dostosowanie pól tekstowych do motywów */
     .theme-dark input,
     .theme-dark textarea {
         background-color: #2e2e40;
         color: #f0f0f0;
-        border-color: #444;
+        border: 1px solid #444;
     }
 
     .theme-green input,
     .theme-green textarea {
         background-color: #f5fff5;
         color: #14532d;
-        border-color: #88cc88;
+        border: 1px solid #88cc88;
     }
 
+    /* Karty */
+    .note-card {
+        transition: transform 0.1s ease, box-shadow 0.2s ease;
+        border-radius: 10px;
+    }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    /* Lista notatek */
+    .notes-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    /* Tytuł notatki w liście */
+    .note-title {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+    }
+
+    /* Przyciski */
+    .btn-icon {
+        padding: 0.4rem 0.6rem;
+        font-size: 1.1rem;
+    }
 </style>
 
-
-
-<div class="@GetThemeClass()">
+<div class="@GetThemeClass() min-vh-100">
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">📓 Notatnik</h2>
             <div class="btn-group">
-                <button class="btn btn-outline-secondary" @onclick="() => ChangeTheme(1)">🌞</button>
-                <button class="btn btn-outline-secondary" @onclick="() => ChangeTheme(2)">🌙</button>
-                <button class="btn btn-outline-secondary" @onclick="() => ChangeTheme(3)">🌿</button>
+                <button class="btn btn-outline-secondary btn-icon" @onclick="() => ChangeTheme(1)">🌞</button>
+                <button class="btn btn-outline-secondary btn-icon" @onclick="() => ChangeTheme(2)">🌙</button>
+                <button class="btn btn-outline-secondary btn-icon" @onclick="() => ChangeTheme(3)">🌿</button>
             </div>
         </div>
-
         @if (!string.IsNullOrEmpty(errorString))
         {
             <div class="alert alert-danger">@errorString</div>
         }
-
-        <div class="@GetThemeClass() card shadow-sm border-0">
+        <div class="card shadow-sm border-0 note-card @GetThemeClass() mb-4">
             <div class="card-body">
                 <input type="text" class="form-control form-control-lg mb-3"
                        placeholder="Tytuł notatki"
@@ -67,7 +93,6 @@
                 <textarea class="form-control mb-3" rows="10"
                           placeholder="Treść notatki..."
                           @bind="note.text"></textarea>
-
                 <div class="row g-2">
                     <div class="col-md-8">
                         <input type="text" class="form-control"
@@ -80,27 +105,69 @@
                 </div>
             </div>
         </div>
-
-        <div class="card shadow-sm border-0 mt-4  @GetThemeClass()">
+        <div>
+            @foreach(string path in paths)
+            {
+                <div class="alert alert-info">
+                    <span>@path</span>
+                    <button class="btn btn-danger btn-sm float-end" @onclick="() => paths.Remove(path)">Usuń</button>
+                </div>
+            }
+        </div>
+        <div class="card shadow-sm border-0 note-card @GetThemeClass() mb-4">
             <div class="card-body">
                 <h5 class="card-title">📂 Otwórz notatkę</h5>
                 <div class="row g-2">
                     <div class="col-md-8">
-                        <input type="text" class="form-control"
-                               placeholder="Ścieżka notatki"
-                               @bind="pathToOpen" />
+                        <input type="text" class="form-control" placeholder="Ścieżka notatki" @bind="pathToOpen" />
                     </div>
                     <div class="col-md-4 text-md-end">
-                        <button class="btn btn-success w-100" @onclick="Open">Załaduj</button>
+                        <button class="btn btn-success w-100" @onclick="OpenAll">Załaduj</button>
                     </div>
                 </div>
             </div>
         </div>
+            <div class="notes-list">
+                @foreach (NoteObject n in notesList)
+                {
+                    @if (string.IsNullOrWhiteSpace(haveString)  && n.path.Contains(haveString, StringComparison.OrdinalIgnoreCase))
+                    {
+                        <div class="card note-card shadow-sm border-0 @GetThemeClass()">
+                            <div class="card-body">
+                                <div class="note-title">@n.title</div>
+                                <textarea class="form-control mb-3" rows="4" @bind="n.text"></textarea>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        <div class="card shadow-sm border-0 note-card @GetThemeClass() mb-4">
+            <div class="card-body">
+                <h5 class="card-title">📂 Załaduj wszystkie</h5>
+                <div class="row g-2">
+                    <div class="col-md-4 text-md-end">
+                        <button class="btn btn-success w-100" @onclick="OpenAll">Załaduj</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (notesList != null && notesList.Count > 0)
+        {
+            <div class="notes-list">
+                @foreach (var n in notesList)
+                {
+                    <div class="card note-card shadow-sm border-0 @GetThemeClass()">
+                        <div class="card-body">
+                            <div class="note-title">@n.title</div>
+                            <textarea class="form-control mb-3" rows="4" @bind="n.text"></textarea>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
     </div>
-
 </div>
-
-
 
 @code {
     [Parameter] public string? pathToNote { get; set; } = string.Empty;
@@ -112,6 +179,9 @@
     public NoteObject note = new();
     private string errorString = string.Empty;
 
+    public List<NoteObject> notesList = new();
+    public List<string> paths = new();
+    public string haveString = "";
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(pathToNote))
@@ -144,19 +214,41 @@
     {
         if (string.IsNullOrWhiteSpace(pathToOpen))
         {
-            errorString = "Podaj prawidłową ścieżkę do notatki.";
-            return;
+            errorString = " Path musi być podane!";
         }
         try
         {
             string json = await localStorage.GetItemAsync<string>(pathToOpen);
             note = JsonSerializer.Deserialize<NoteObject>(json);
 
-            var allNotes = await DB.GetRecords<NoteObject>("notes");
-            note = allNotes.FirstOrDefault(e => e.path == pathToOpen);
+            // var allNotes = await DB.GetRecords<NoteObject>("notes");
+            // note = allNotes.FirstOrDefault(e => e.path == pathToOpen);
 
+            notesList = await DB.GetRecords<NoteObject>("notes");
 
             JS.InvokeVoidAsync("console.log", JsonSerializer.Deserialize<NoteObject>(json));
+            JS.InvokeVoidAsync("console.log", notesList);
+
+        }
+        catch (Exception ex)
+        {
+            errorString = ex.Message;
+        }
+    }
+    private async Task OpenAll()
+    {
+        try
+        {
+            // string json = await localStorage.GetItemAsync<string>(pathToOpen);
+            // note = JsonSerializer.Deserialize<NoteObject>(json);
+
+            // var allNotes = await DB.GetRecords<NoteObject>("notes");
+            // note = allNotes.FirstOrDefault(e => e.path == pathToOpen);
+
+            notesList = await DB.GetRecords<NoteObject>("notes");
+
+            // JS.InvokeVoidAsync("console.log", JsonSerializer.Deserialize<NoteObject>(json));
+            JS.InvokeVoidAsync("console.log", notesList);
 
         }
         catch (Exception ex)
@@ -176,16 +268,15 @@
             note.path = pathToSave;
             JS.InvokeVoidAsync("console.log", note);
             await localStorage.SetItemAsync(note.path, note);
-            
-            // var record = new StoreRecord<NodeObject>
-            // await DB.AddNewStore("notes", new StoreRecord<NoteObject>
-            // {
-            //     Storename = "notes",
-            //     Data = note,
 
-            // });
+            StoreRecord<NoteObject> record = new();
+            record.Storename = "notes";
+            record.Data = note;   
+
+            await DB.AddRecord<NoteObject>(record);
 
             JS.InvokeVoidAsync("console.log", "DbContext" + note);
+            paths.Add(note.path);
         }
         catch (Exception ex)
         {
